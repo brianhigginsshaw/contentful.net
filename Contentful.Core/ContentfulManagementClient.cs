@@ -3,7 +3,6 @@ using Contentful.Core.Errors;
 using Contentful.Core.Models;
 using Contentful.Core.Models.Management;
 using Contentful.Core.Search;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -34,10 +33,10 @@ namespace Contentful.Core
         /// <param name="httpClient">The HttpClient of your application.</param>
         /// <param name="options">The options object used to retrieve the <see cref="ContentfulOptions"/> for this client.</param>
         /// <exception cref="ArgumentException">The <see name="options">options</see> parameter was null or empty</exception>
-        public ContentfulManagementClient(HttpClient httpClient, IOptions<ContentfulOptions> options)
+        public ContentfulManagementClient(HttpClient httpClient, ContentfulOptions options)
         {
             _httpClient = httpClient;
-            _options = options.Value;
+            _options = options;
 
             if (options == null)
             {
@@ -49,26 +48,17 @@ namespace Contentful.Core
         /// Initializes a new instance of the <see cref="ContentfulManagementClient"/> class.
         /// </summary>
         /// <param name="httpClient">The HttpClient of your application.</param>
-        /// <param name="options">The <see cref="ContentfulOptions"/> used for this client.</param>
-        public ContentfulManagementClient(HttpClient httpClient, ContentfulOptions options) :
-            this(httpClient, new OptionsWrapper<ContentfulOptions>(options))
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ContentfulManagementClient"/> class.
-        /// </summary>
-        /// <param name="httpClient">The HttpClient of your application.</param>
         /// <param name="managementApiKey">The management API key used when communicating with the Contentful API</param>
         /// <param name="spaceId">The id of the space to fetch content from.</param>
-        public ContentfulManagementClient(HttpClient httpClient, string managementApiKey, string spaceId) :
-            this(httpClient, new OptionsWrapper<ContentfulOptions>(new ContentfulOptions()
+        public ContentfulManagementClient(HttpClient httpClient, string managementApiKey, string spaceId) 
+        {
+            _httpClient = httpClient;
+            var options = new ContentfulOptions
             {
                 ManagementApiKey = managementApiKey,
                 SpaceId = spaceId
-            }))
-        {
+            };
+            _options = options;
 
         }
 
@@ -511,8 +501,10 @@ namespace Contentful.Core
         /// <returns>The created entry.</returns>
         public async Task<T> CreateEntryAsync<T>(T entry, string contentTypeId, string spaceId = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var entryToCreate = new Entry<dynamic>();
-            entryToCreate.Fields = entry;
+            var entryToCreate = new Entry<dynamic>
+            {
+                Fields = entry
+            };
 
             var createdEntry = await CreateEntryAsync(entryToCreate, contentTypeId, spaceId, cancellationToken);
             return (createdEntry.Fields as JObject).ToObject<T>();
@@ -568,12 +560,14 @@ namespace Contentful.Core
         /// <returns>The created or updated entry.</returns>
         public async Task<T> CreateOrUpdateEntryAsync<T>(T entry, string id, string spaceId = null, string contentTypeId = null, int? version = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var entryToCreate = new Entry<dynamic>();
-            entryToCreate.SystemProperties = new SystemProperties
+            var entryToCreate = new Entry<dynamic>
             {
-                Id = id
+                SystemProperties = new SystemProperties
+                {
+                    Id = id
+                },
+                Fields = entry
             };
-            entryToCreate.Fields = entry;
 
             var createdEntry = await CreateOrUpdateEntryAsync(entryToCreate, spaceId, contentTypeId, version, cancellationToken);
             return (createdEntry.Fields as JObject).ToObject<T>();
@@ -604,12 +598,14 @@ namespace Contentful.Core
                 jsonToCreate.Add(new JProperty(prop.Name, new JObject(new JProperty(locale, val))));
             }
 
-            var entryToCreate = new Entry<dynamic>();
-            entryToCreate.SystemProperties = new SystemProperties
+            var entryToCreate = new Entry<dynamic>
             {
-                Id = id
+                SystemProperties = new SystemProperties
+                {
+                    Id = id
+                },
+                Fields = jsonToCreate
             };
-            entryToCreate.Fields = jsonToCreate;
 
             return await CreateOrUpdateEntryAsync(entryToCreate, spaceId: spaceId, contentTypeId: contentTypeId, cancellationToken: cancellationToken);
         }

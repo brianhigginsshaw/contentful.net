@@ -1,39 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Description>Official .NET SDK for the Contentful Content Delivery and Management API.</Description>
-    <PackageId>contentful.csharp</PackageId>
-    <AssemblyTitle>contentful.net</AssemblyTitle>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>1.5.0</VersionPrefix>
-    <TargetFramework>netstandard1.4</TargetFramework>
-    <Authors>Contentful</Authors>
-    <Copyright>Contentful GmbH.</Copyright>
-    <AssemblyName>Contentful.Core</AssemblyName>
-    <PackageTags>contentful;CMS</PackageTags>
-    <PackageIconUrl>https://d21buns5ku92am.cloudfront.net/41748/images/210510-contentful_85x85@2x-550fdb-large-1464181794.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/contentful/contentful.net</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/contentful/contentful.net/master/LICENSE</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>git://github.com/contentful/contentful.net</RepositoryUrl>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
-    <Version>1.5.0</Version>
+    <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Options">
-      <Version>1.1.2</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>10.0.3</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Shaw.Digital.Framework" Version="2.0.225" />
   </ItemGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.4\Contentful.Core.xml</DocumentationFile>
-  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>

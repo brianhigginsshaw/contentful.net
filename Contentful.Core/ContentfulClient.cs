@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Contentful.Core.Configuration;
 using Contentful.Core.Models;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System.Text;
@@ -31,10 +30,10 @@ namespace Contentful.Core
         /// <param name="httpClient">The HttpClient of your application.</param>
         /// <param name="options">The options object used to retrieve the <see cref="ContentfulOptions"/> for this client.</param>
         /// <exception cref="ArgumentException">The <see name="options">options</see> parameter was null or empty</exception>
-        public ContentfulClient(HttpClient httpClient, IOptions<ContentfulOptions> options)
+        public ContentfulClient(HttpClient httpClient, ContentfulOptions options)
         {
             _httpClient = httpClient;
-            _options = options.Value;
+            _options = options;
 
             if (options == null)
             {
@@ -47,37 +46,32 @@ namespace Contentful.Core
             }
             ResolveEntriesSelectively = _options.ResolveEntriesSelectively;
             SerializerSettings.Converters.Add(new AssetJsonConverter());
+            SerializerSettings.TypeNameHandling = TypeNameHandling.All;
         }
+
+  
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ContentfulClient"/> class.
         /// </summary>
         /// <param name="httpClient">The HttpClient of your application.</param>
-        /// <param name="options">The <see cref="ContentfulOptions"/> used for this client.</param>
-        public ContentfulClient(HttpClient httpClient, ContentfulOptions options):
-            this(httpClient, new OptionsWrapper<ContentfulOptions>(options))
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ContentfulClient"/> class.
-        /// </summary>
-        /// <param name="httpClient">The HttpClient of your application.</param>
-        /// <param name="deliveryApiKey">The delivery API key used when communicating with the Contentful API</param>
+        /// <param name="deliveryApiKey">The delivery API key used when communicating with the Contentful API.</param>
+        /// <param name="previewApiKey">The preview API key used when communicating with the Contentful Preview API.</param>
         /// <param name="spaceId">The ID of the space to fetch content from.</param>
         /// <param name="usePreviewApi">Whether or not to use the Preview API for requests.
         /// If this is set to true the preview API key needs to be used for <paramref name="deliveryApiKey"/>
         ///  </param>
-        public ContentfulClient(HttpClient httpClient, string deliveryApiKey, string spaceId, bool usePreviewApi = false):
-            this(httpClient, new OptionsWrapper<ContentfulOptions>(new ContentfulOptions()
+        public ContentfulClient(HttpClient httpClient, string deliveryApiKey, string previewApiKey, string spaceId, bool usePreviewApi = false)
+        {
+            _httpClient = httpClient;
+            var options = new ContentfulOptions
             {
                 DeliveryApiKey = deliveryApiKey,
                 SpaceId = spaceId,
+                PreviewApiKey = previewApiKey,
                 UsePreviewApi = usePreviewApi
-            }))
-        {
-
+            };
+            _options = options;
         }
 
         /// <summary>
@@ -354,7 +348,11 @@ namespace Contentful.Core
                         {
                             propType = prop?.PropertyType;
 
-                            if (propType != null && typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(propType.GetTypeInfo()) && propType.IsConstructedGenericType)
+                            if (propType != null && propType.IsArray)
+                            {
+                                propType = propType.GetElementType();
+                            }
+                            else if (propType != null && typeof(IEnumerable).GetTypeInfo().IsAssignableFrom(propType.GetTypeInfo()) && propType.IsConstructedGenericType)
                             {
                                 propType = propType.GetTypeInfo().GenericTypeArguments[0];
                             }

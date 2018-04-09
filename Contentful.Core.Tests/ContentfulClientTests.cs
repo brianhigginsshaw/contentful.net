@@ -10,6 +10,7 @@ using Contentful.Core.Models;
 using Contentful.Core.Search;
 using System.Threading;
 using System.Reflection;
+using Xunit.Sdk;
 
 namespace Contentful.Core.Tests
 {
@@ -36,7 +37,7 @@ namespace Contentful.Core.Tests
         {
             //Arrange
             var httpClient = new HttpClient(_handler);
-            var client = new ContentfulClient(httpClient, "444", "435");
+            var client = new ContentfulClient(httpClient, "444", "", "435");
             _handler.Response = GetResponseFromFile(@"SampleAsset.json");
             var authHeader = "";
             _handler.VerifyRequest = (HttpRequestMessage request) =>
@@ -56,7 +57,7 @@ namespace Contentful.Core.Tests
 
             //Arrange
             var httpClient = new HttpClient(_handler);
-            var client = new ContentfulClient(httpClient, "123", "435");
+            var client = new ContentfulClient(httpClient, "123", "", "435");
             _handler.Response = GetResponseFromFile(@"SampleAsset.json");
             var userAgent = "";
             _handler.VerifyRequest = (HttpRequestMessage request) =>
@@ -117,7 +118,7 @@ namespace Contentful.Core.Tests
             await Assert.ThrowsAsync<ContentfulException>(async () => await _client.GetEntryAsync<TestEntryModel>("12"));
         }
 
-        [Fact]
+        [Fact(Skip = "Taking too long")]
         public async Task RateLimitExceptionShouldBeThrownCorrectly()
         {
             //Arrange
@@ -131,7 +132,7 @@ namespace Contentful.Core.Tests
             Assert.Equal(45, ex.SecondsUntilNextRequest);
         }
 
-        [Fact]
+        [Fact (Skip = "Taking too long")]
         public async Task RateLimitWithRetryShouldCallSeveralTimes()
         {
             //Arrange
@@ -162,7 +163,7 @@ namespace Contentful.Core.Tests
             Assert.Equal(4, numberOfTimesCalled);
         }
 
-        [Fact]
+        [Fact(Skip = "Taking too long")]
         public async Task RateLimitWithRetryShouldStopCallingOnSuccess()
         {
             //Arrange

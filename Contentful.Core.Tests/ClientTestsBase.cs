@@ -68,6 +68,7 @@ namespace Contentful.Core.Tests
 
     public class TestEntryModel : IMarker
     {
+        public SystemProperties Sys { get; set; }
         public string ProductName { get; set; }
         public string Slug { get; set; }
         public string Title { get; set; }
@@ -152,6 +153,7 @@ namespace Contentful.Core.Tests
     {
         public string Field1 { get; set; }
         public Asset Field4 { get; set; }
+        public string NewField { get; set; }
     }
 
     public class ContentfulEvent : IMarker
@@ -168,6 +170,11 @@ namespace Contentful.Core.Tests
     public class MainContainer
     {
         public List<Container> Items { get; set; }
+    }
+
+    public class MainContainerArray
+    {
+        public Container[] Items { get; set; }
     }
 
     public class Container
@@ -193,6 +200,15 @@ namespace Contentful.Core.Tests
         public string Slug { get; set; }
         public string Description { get; set; }
         public List<SelfReferencer> SubCategories { get; set; }
+    }
+
+    public class SelfReferencerInArray
+    {
+        public SystemProperties Sys { get; set; }
+        public string Title { get; set; }
+        public string Slug { get; set; }
+        public string Description { get; set; }
+        public SelfReferencer[] SubCategories { get; set; }
     }
 
     public class Footer

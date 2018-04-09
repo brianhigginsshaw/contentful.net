@@ -22,6 +22,8 @@ namespace Contentful.Core
     /// </summary>
     public abstract class ContentfulClientBase
     {
+        private const bool IsWindowsOS = true;
+        private const bool IsOSXOS = false;
         /// <summary>
         /// The HttpClient used for API calls.
         /// </summary>
@@ -45,9 +47,39 @@ namespace Contentful.Core
         public string Version => typeof(ContentfulClientBase).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             .InformationalVersion;
 
-        private string Os => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "macOS" : "Linux";
+        private string Os => IsWindows ? "Windows" : IsMacOS ? "macOS" : "Linux";
 
         private string Platform => ".net";
+
+        private static bool IsWindows
+        {
+            get
+            {
+                try
+                {
+                    return IsWindowsOS;
+                }
+                catch (PlatformNotSupportedException) { }
+                return false;
+            }
+        }
+
+        private static bool IsMacOS
+        {
+            get
+            {
+                try
+                {
+                    return IsOSXOS;
+                }
+                catch (PlatformNotSupportedException) { }
+                return false;
+            }
+        }
+        /// <summary>
+        /// Property for sending a custom tracking header.
+        /// </summary>
+        public string Application { get; set; } = "sdk contentful.csharp";
 
         /// <summary>
         /// Creates an exception for a failed API request.
@@ -174,7 +206,7 @@ namespace Contentful.Core
             };
             httpRequestMessage.Headers.Add("Authorization", $"Bearer {authToken}");
             
-            httpRequestMessage.Headers.Add("X-Contentful-User-Agent", $"sdk contentful.csharp/{Version}; platform {Platform}; os {Os};");
+            httpRequestMessage.Headers.Add("X-Contentful-User-Agent", $"{Application}/{Version}; platform {Platform}; os {Os};");
 
             httpRequestMessage.Content = content;
 
